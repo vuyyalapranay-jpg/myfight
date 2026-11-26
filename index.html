@@ -39,9 +39,11 @@
     .timer{font-family:'Cinzel',serif;font-size:2.3rem;font-weight:900;color:#ffe29a;text-shadow:0 2px 6px #000}
     .banner{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%) scale(0);font-family:'Cinzel',serif;font-size:3rem;font-weight:900;color:#ffd740;text-shadow:0 0 20px #000;pointer-events:none;transition:transform .25s;z-index:6}
     .banner.show{transform:translate(-50%,-50%) scale(1)}
-    .touch{position:absolute;bottom:12px;left:16px;right:16px;display:flex;justify-content:space-between;pointer-events:none;z-index:5}
-    .pad{display:flex;gap:6px;pointer-events:auto}
-    .pad button{width:40px;height:40px;border-radius:50%;background:rgba(20,24,34,.55);border:2px solid rgba(255,255,255,.3);font-size:.95rem}
+    .touch{position:absolute;bottom:10px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none;z-index:5}
+    .pad{display:flex;gap:5px;pointer-events:auto}
+    .pad-grid{display:grid;grid-template-columns:repeat(3,34px);gap:5px;pointer-events:auto}
+    .pad button,.pad-grid button{width:34px;height:34px;padding:0;border-radius:50%;background:rgba(15,18,28,.45);border:1.5px solid rgba(255,255,255,.28);font-size:.82rem;opacity:.72;display:flex;align-items:center;justify-content:center}
+    .pad button:hover,.pad-grid button:hover{opacity:1;border-color:#ffd740}
     .hint{margin-top:8px;color:#9aa4ba;font-size:.86rem;text-align:center}
     .roster-16{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
     .slot{background:#141926;border:1px dashed #2e3750;padding:8px;border-radius:4px;text-align:center;font-size:.85rem}
@@ -196,9 +198,9 @@
         <div class="pad">
           <button data-act="left">◀</button><button data-act="up">▲</button><button data-act="right">▶</button><button data-act="down">▼</button>
         </div>
-        <div class="pad">
-          <button data-act="punch">👊</button><button data-act="weapon">⚔</button><button data-act="kick">🦵</button>
-          <button data-act="block">🛡</button><button data-act="dodge">🌀</button><button data-act="special">⚡</button>
+        <div class="pad-grid">
+          <button data-act="punch" title="Punch (U)">👊</button><button data-act="weapon" title="Weapon (J)">⚔</button><button data-act="kick" title="Kick (K)">🦵</button>
+          <button data-act="block" title="Block (B)">🛡</button><button data-act="dodge" title="Dodge (Space)">🌀</button><button data-act="special" title="Special (L)">⚡</button>
         </div>
       </div>
     </div>

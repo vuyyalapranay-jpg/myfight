@@ -127,9 +127,9 @@ export class ArenaScene extends Phaser.Scene {
     }
     this.stageKey = stage;
     this.trainingMode = !!opts?.training;
+    this.debugMode = !!opts?.training;
     this.noBlockMode = !!opts?.noBlock;
     this.eclipseMode = !!opts?.eclipse;
-    if (this.trainingMode) this.debugMode = true;
     this.particles = [];
     this.callouts = [];
     this.hitStop = 0;
