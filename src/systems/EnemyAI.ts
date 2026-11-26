@@ -23,33 +23,37 @@ export class EnemyAI {
     }
 
     const arch = self.config.archetype;
-    const reactDelay = arch === 'fast' ? 0.14 : arch === 'boss' ? 0.13 : arch === 'heavy' ? 0.28 : 0.2;
-    this.cooldown = reactDelay + Math.random() * 0.16;
+    const reactDelay =
+      arch === 'boss' ? 0.28 :
+      arch === 'fast' ? 0.36 :
+      arch === 'heavy' ? 0.55 :
+      0.44;
+    this.cooldown = reactDelay + Math.random() * 0.24;
 
     const dx = opponent.x - self.x;
     const dist = Math.abs(dx);
     const reach = self.config.weapon.reach * 1.35;
-    const oppAttacking = opponent.getActiveHitbox() !== null || opponent.anim.includes('slash') || opponent.anim.includes('kick');
+    const oppAttacking = opponent.getActiveHitbox() !== null;
 
     const next: InputSnapshot = {
       left: false, right: false, up: false, down: false,
       punch: false, kick: false, weapon: false, block: false, dodge: false, special: false,
     };
 
-    if (self.shadowEnergy >= 100 && dist < 300 && Math.random() < 0.65) {
+    if (self.shadowEnergy >= 100 && dist < 290 && Math.random() < 0.45) {
       next.special = true;
       this.currentInput = next;
       return next;
     }
 
-    if (oppAttacking && dist < reach + 35) {
-      const blockChance = arch === 'defensive' || arch === 'counter' ? 0.72 : arch === 'boss' ? 0.6 : 0.35;
+    if (oppAttacking && dist < reach + 30) {
+      const blockChance = arch === 'defensive' || arch === 'counter' ? 0.42 : arch === 'boss' ? 0.38 : 0.22;
       if (Math.random() < blockChance) {
         next.block = true;
         this.currentInput = next;
         return next;
       }
-      if (Math.random() < 0.35) {
+      if (Math.random() < 0.15) {
         next.dodge = true;
         this.currentInput = next;
         return next;
@@ -59,22 +63,24 @@ export class EnemyAI {
     if (dist > reach + 25) {
       if (dx > 0) next.right = true;
       else next.left = true;
-      if (dist < 260 && Math.random() < 0.2) {
+      if (dist < 250 && Math.random() < 0.14) {
         next.up = true;
         next.kick = true;
       }
     } else if (dist < 72) {
       const r = Math.random();
-      if (r < 0.35) next.punch = true;
-      else if (r < 0.68) next.kick = true;
-      else if (r < 0.85) { next.down = true; next.kick = true; }
-      else next.dodge = true;
+      if (r < 0.28) next.punch = true;
+      else if (r < 0.55) next.kick = true;
+      else if (r < 0.72) { next.down = true; next.kick = true; }
+      else if (r < 0.85) next.dodge = true;
+      // else brief idle opening
     } else {
       const r = Math.random();
-      if (r < 0.48) next.weapon = true;
-      else if (r < 0.74) next.kick = true;
-      else if (r < 0.9) next.punch = true;
-      else next.block = true;
+      if (r < 0.36) next.weapon = true;
+      else if (r < 0.58) next.kick = true;
+      else if (r < 0.74) next.punch = true;
+      else if (r < 0.86) next.block = true;
+      // else brief idle opening
     }
 
     this.currentInput = next;
