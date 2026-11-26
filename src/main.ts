@@ -267,35 +267,84 @@ window.addEventListener('DOMContentLoaded', () => {
     FIGHTER_ROSTER.forEach((f) => selDuel.add(new Option(`${f.name} (${f.title})`, f.id)));
     selDuel.value = 'kaelor';
   }
-
-  const chWrap = document.getElementById('challengeBtns');
-  if (chWrap) {
-    CHALLENGES.forEach((ch) => {
-      const b = document.createElement('button');
-      b.textContent = ch.title;
-      b.onclick = () => {
-        currentChallengeId = ch.id;
-        launchBattle(ch.opponentId, ch.stage, 'challenge', { eclipse: ch.eclipse, noBlock: ch.noBlock, label: ch.title });
-      };
-      chWrap.appendChild(b);
-    });
+  const selChal = document.getElementById('selChallenge') as HTMLSelectElement | null;
+  if (selChal) {
+    CHALLENGES.forEach((ch) => selChal.add(new Option(`${ch.title} — ${ch.desc}`, ch.id)));
   }
 
-  document.getElementById('btnPlayStory')?.addEventListener('click', () => {
-    const ch = STORY_CHAPTERS[Math.min(save.storyChapter, STORY_CHAPTERS.length - 1)];
-    launchBattle(ch.opponentId, ch.stage, 'story', { label: ch.title });
+  let selectedHubMode: 'story' | 'duel' | 'survival' | 'challenge' | 'tournament' | 'training' = 'story';
+  const updateScroll = (mode: typeof selectedHubMode) => {
+    selectedHubMode = mode;
+    document.querySelectorAll<HTMLButtonElement>('.sf2-node-pin').forEach((n) => n.classList.toggle('active', n.dataset.mode === mode));
+    const title = document.getElementById('scrollTitle');
+    const desc = document.getElementById('scrollDesc');
+    const img = document.getElementById('scrollImg') as HTMLImageElement | null;
+    const btn = document.getElementById('btnScrollFight');
+    if (selDuel) selDuel.style.display = mode === 'duel' ? 'block' : 'none';
+    if (selChal) selChal.style.display = mode === 'challenge' ? 'block' : 'none';
+
+    if (mode === 'story') {
+      const ch = STORY_CHAPTERS[Math.min(save.storyChapter, STORY_CHAPTERS.length - 1)];
+      if (title) title.textContent = 'Story Campaign';
+      if (desc) desc.textContent = save.storyChapter >= STORY_CHAPTERS.length ? 'All Chapters Cleared!' : `${ch.title} — Reward: ${ch.rewardCoins} Coins`;
+      if (img) img.src = ch.stage === 'titan_hall' ? 'assets/stage_titan.jpg' : 'assets/stage_temple.jpg';
+      if (btn) btn.textContent = 'FIGHT!';
+    } else if (mode === 'duel') {
+      if (title) title.textContent = 'Quick Duel';
+      if (desc) desc.textContent = 'Choose any of the 14 warriors for a 1v1 battle.';
+      if (img) img.src = 'assets/stage_temple.jpg';
+      if (btn) btn.textContent = 'FIGHT!';
+    } else if (mode === 'survival') {
+      if (title) title.textContent = 'Survival';
+      if (desc) desc.textContent = `Endless waves with 25% HP recovery. Best Wave: ${save.survivalBest}`;
+      if (img) img.src = 'assets/stage_titan.jpg';
+      if (btn) btn.textContent = 'FIGHT!';
+    } else if (mode === 'challenge') {
+      if (title) title.textContent = 'Eclipse Challenges';
+      if (desc) desc.textContent = 'Special combat modifiers & bonus gem rewards.';
+      if (img) img.src = 'assets/stage_titan.jpg';
+      if (btn) btn.textContent = 'FIGHT!';
+    } else if (mode === 'tournament') {
+      if (title) title.textContent = '2–16 Custom Room';
+      if (desc) desc.textContent = '1v1 full-classification bracket (1st → 16th rank).';
+      if (img) img.src = 'assets/stage_temple.jpg';
+      if (btn) btn.textContent = 'OPEN ROOM';
+    } else {
+      if (title) title.textContent = 'Training Dojo';
+      if (desc) desc.textContent = 'Practice combos with live Hitbox/Hurtbox Debug (F9).';
+      if (img) img.src = 'assets/stage_temple.jpg';
+      if (btn) btn.textContent = 'TRAIN!';
+    }
+  };
+
+  document.querySelectorAll<HTMLButtonElement>('.sf2-node-pin').forEach((pin) => {
+    pin.addEventListener('click', () => {
+      const m = pin.dataset.mode as typeof selectedHubMode;
+      if (m) updateScroll(m);
+    });
   });
-  document.getElementById('btnPlaySurvival')?.addEventListener('click', () => {
-    survivalWave = 1;
-    launchBattle(FIGHTER_ROSTER[1].id, 'temple', 'survival', { label: 'SURVIVAL WAVE 1' });
-  });
-  document.getElementById('btnPlayDuel')?.addEventListener('click', () => {
-    const opp = selDuel?.value || 'kaelor';
-    const st = ((document.getElementById('selStage') as HTMLSelectElement | null)?.value as 'temple' | 'titan_hall') || 'temple';
-    launchBattle(opp, st, 'duel');
-  });
-  document.getElementById('btnPlayTraining')?.addEventListener('click', () => {
-    launchBattle('oboro', 'temple', 'training', { training: true, label: 'TRAINING DOJO' });
+  updateScroll('story');
+
+  document.getElementById('btnScrollFight')?.addEventListener('click', () => {
+    if (selectedHubMode === 'story') {
+      const ch = STORY_CHAPTERS[Math.min(save.storyChapter, STORY_CHAPTERS.length - 1)];
+      launchBattle(ch.opponentId, ch.stage, 'story', { label: ch.title });
+    } else if (selectedHubMode === 'survival') {
+      survivalWave = 1;
+      launchBattle(FIGHTER_ROSTER[1].id, 'temple', 'survival', { label: 'SURVIVAL WAVE 1' });
+    } else if (selectedHubMode === 'duel') {
+      const opp = selDuel?.value || 'kaelor';
+      const st = ((document.getElementById('selStage') as HTMLSelectElement | null)?.value as 'temple' | 'titan_hall') || 'temple';
+      launchBattle(opp, st, 'duel');
+    } else if (selectedHubMode === 'challenge') {
+      const ch = CHALLENGES.find((x) => x.id === selChal?.value) || CHALLENGES[0];
+      currentChallengeId = ch.id;
+      launchBattle(ch.opponentId, ch.stage, 'challenge', { eclipse: ch.eclipse, noBlock: ch.noBlock, label: ch.title });
+    } else if (selectedHubMode === 'tournament') {
+      showTab('tournament');
+    } else {
+      launchBattle('oboro', 'temple', 'training', { training: true, label: 'TRAINING DOJO' });
+    }
   });
 
   document.getElementById('btnDebug')?.addEventListener('click', () => {

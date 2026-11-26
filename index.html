@@ -46,6 +46,25 @@
     .roster-16{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
     .slot{background:#141926;border:1px dashed #2e3750;padding:8px;border-radius:4px;text-align:center;font-size:.85rem}
     .slot.occ{border:1px solid #ffd740;background:#1d2336}
+
+    /* SF2 Map & Hanging Scroll Hub */
+    .sf2-hub{display:grid;grid-template-columns:1fr 290px;gap:0;border:3px solid #2b1d12;border-radius:8px;overflow:hidden;min-height:510px;background:#1a120b;box-shadow:0 12px 36px rgba(0,0,0,.85)}
+    @media(max-width:860px){.sf2-hub{grid-template-columns:1fr}}
+    .sf2-map{position:relative;background:url('assets/map_parchment.jpg') center/cover no-repeat;min-height:460px;padding:14px;display:flex;flex-direction:column;justify-content:space-between}
+    .sf2-menu-btn{align-self:flex-start;font-family:'Cinzel',serif;font-weight:900;font-size:.95rem;letter-spacing:2px;color:#2b190d;background:linear-gradient(180deg,#e9d5af,#c9aa76);border:2px solid #4a2e18;border-left:10px solid #3a2010;border-right:10px solid #3a2010;padding:5px 22px;border-radius:4px;box-shadow:0 4px 10px rgba(0,0,0,.55)}
+    .sf2-node-pin{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;padding:0;cursor:pointer}
+    .sf2-pin-circle{width:54px;height:54px;border-radius:50%;background:radial-gradient(circle,#fff2b2 0%,#f0b238 65%,#7a4a12 100%);border:3px solid #2b1608;display:flex;align-items:center;justify-content:center;font-size:1.5rem;box-shadow:0 4px 12px rgba(0,0,0,.65);transition:.15s}
+    .sf2-node-pin.active .sf2-pin-circle,.sf2-node-pin:hover .sf2-pin-circle{transform:scale(1.12);border-color:#fff8dc;box-shadow:0 0 18px rgba(255,215,64,.95)}
+    .sf2-pin-lbl{font-family:'Cinzel',serif;font-size:.78rem;font-weight:900;color:#241307;background:rgba(245,228,195,.85);padding:1px 7px;border-radius:3px;letter-spacing:.8px;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+    .sf2-scroll{display:flex;flex-direction:column;background:#2a180c}
+    .sf2-roller{height:16px;background:linear-gradient(180deg,#5c3b22,#2e1a0c 60%,#4a2e18);border-top:2px solid #1b0f06;border-bottom:2px solid #1b0f06}
+    .sf2-scroll-inner{flex:1;background:linear-gradient(180deg,#ebd9b7 0%,#dfc698 55%,#cfb07a 100%);color:#2a190c;padding:16px;display:flex;flex-direction:column;gap:10px;text-align:center}
+    .sf2-scroll-inner h3{font-family:'Cinzel',serif;font-size:1.25rem;color:#2b1608}
+    .sf2-scroll-img{width:100%;height:110px;object-fit:cover;border-radius:4px;border:2px solid #4a2e18}
+    .sf2-scroll-desc{font-size:.95rem;color:#3d2412;font-weight:600;line-height:1.35}
+    .sf2-scroll-fight{margin-top:auto;font-family:'Cinzel',serif;font-size:1.35rem;font-weight:900;letter-spacing:2px;padding:10px;border-radius:6px;border:3px solid #6e4f28;background:linear-gradient(180deg,#fffdf5 0%,#e5d4ad 65%,#bfa471 100%);color:#2a1708;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+    .sf2-scroll-sub{display:flex;flex-direction:column;gap:6px}
+    .sf2-scroll-sub select{background:#2d1c0f;color:#f5e4c3;border:1px solid #6b4c2d}
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;z-index:50}
     .modal.show{display:flex}
     .modal-box{background:#121624;border:2px solid #ffd740;border-radius:8px;padding:24px;max-width:420px;width:92%;text-align:center}
@@ -70,16 +89,46 @@
     </nav>
   </header>
 
-  <!-- MAIN MENU / MODES -->
-  <section id="tab-menu" class="panel active">
-    <h2 style="font-family:'Cinzel',serif;color:#ffd740;margin-bottom:8px">CHOOSE YOUR PATH</h2>
-    <div class="grid-cards">
-      <div class="card"><h3>📜 Story Campaign</h3><p id="storyProgressDesc">Chapter 1</p><button class="btn-gold" id="btnPlayStory">Fight Next Chapter</button></div>
-      <div class="card"><h3>🏆 2–16 Custom Room</h3><p>Full 1st→16th rank classification bracket.</p><button class="btn-gold" data-tab-jump="tournament">Open Custom Room</button></div>
-      <div class="card"><h3>🔥 Survival</h3><p id="survivalBestDesc">Best Wave: 0</p><button class="btn-gold" id="btnPlaySurvival">Start Survival</button></div>
-      <div class="card"><h3>⚡ Challenges</h3><p>Special modifiers &amp; bonus gems.</p><div id="challengeBtns" style="display:flex;flex-direction:column;gap:4px"></div></div>
-      <div class="card"><h3>⚔ Quick Duel</h3><p>1v1 against any warrior.</p><select id="selDuelOpp"></select><button class="btn-gold" id="btnPlayDuel">Start Duel</button></div>
-      <div class="card"><h3>🎯 Training Dojo</h3><p>Practice combos with live Hitboxes (F9).</p><button id="btnPlayTraining">Enter Training</button></div>
+  <!-- MAIN MENU / SF2 PARCHMENT MAP & HANGING SCROLL -->
+  <section id="tab-menu" class="panel active" style="padding:10px">
+    <div class="sf2-hub">
+      <div class="sf2-map">
+        <button class="sf2-menu-btn" data-tab="roster" type="button">MENU · ROSTER</button>
+
+        <button class="sf2-node-pin" data-mode="duel" style="left:38%;top:28%">
+          <div class="sf2-pin-circle">⚔</div><span class="sf2-pin-lbl">DUEL</span>
+        </button>
+        <button class="sf2-node-pin active" data-mode="story" style="left:33%;top:52%">
+          <div class="sf2-pin-circle">🥷</div><span class="sf2-pin-lbl">STORY</span>
+        </button>
+        <button class="sf2-node-pin" data-mode="survival" style="left:60%;top:42%">
+          <div class="sf2-pin-circle">🔥</div><span class="sf2-pin-lbl">SURVIVAL</span>
+        </button>
+        <button class="sf2-node-pin" data-mode="challenge" style="left:21%;top:72%">
+          <div class="sf2-pin-circle">⛩</div><span class="sf2-pin-lbl">CHALLENGE</span>
+        </button>
+        <button class="sf2-node-pin" data-mode="tournament" style="left:50%;top:74%">
+          <div class="sf2-pin-circle">🏆</div><span class="sf2-pin-lbl">TOURNAMENT</span>
+        </button>
+        <button class="sf2-node-pin" data-mode="training" style="left:76%;top:68%">
+          <div class="sf2-pin-circle">🎯</div><span class="sf2-pin-lbl">TRAINING</span>
+        </button>
+      </div>
+
+      <div class="sf2-scroll">
+        <div class="sf2-roller"></div>
+        <div class="sf2-scroll-inner">
+          <h3 id="scrollTitle">Story Campaign</h3>
+          <img id="scrollImg" src="assets/stage_temple.jpg" alt="" class="sf2-scroll-img">
+          <p id="scrollDesc" class="sf2-scroll-desc">Chapter I: Bamboo Trial</p>
+          <div class="sf2-scroll-sub" id="scrollControls">
+            <select id="selDuelOpp" style="display:none"></select>
+            <select id="selChallenge" style="display:none"></select>
+          </div>
+          <button class="sf2-scroll-fight" id="btnScrollFight">FIGHT!</button>
+        </div>
+        <div class="sf2-roller"></div>
+      </div>
     </div>
   </section>
 
