@@ -2,18 +2,18 @@ import type { AnimFrame, AnimState, SkeletonPose } from '../types/game';
 
 export const POSES: Record<string, SkeletonPose> = {
   idle_1: {
-    head: { x: 4, y: -96 }, neck: { x: 2, y: -86 }, chest: { x: 1, y: -70 }, hip: { x: 0, y: -46 },
-    shoulderR: { x: 12, y: -82 }, elbowR: { x: 26, y: -72 }, handR: { x: 36, y: -84 },
-    shoulderL: { x: -12, y: -82 }, elbowL: { x: -22, y: -68 }, handL: { x: -10, y: -58 },
-    hipR: { x: 10, y: -46 }, kneeR: { x: 24, y: -24 }, footR: { x: 26, y: 0 },
-    hipL: { x: -8, y: -46 }, kneeL: { x: -18, y: -23 }, footL: { x: -22, y: 0 },
+    head: { x: 2, y: -98 }, neck: { x: 0, y: -88 }, chest: { x: -1, y: -72 }, hip: { x: -3, y: -47 },
+    shoulderR: { x: 9, y: -83 }, elbowR: { x: 22, y: -70 }, handR: { x: 35, y: -76 },
+    shoulderL: { x: -11, y: -82 }, elbowL: { x: -18, y: -67 }, handL: { x: -4, y: -62 },
+    hipR: { x: 5, y: -47 }, kneeR: { x: 18, y: -24 }, footR: { x: 22, y: 0 },
+    hipL: { x: -9, y: -47 }, kneeL: { x: -16, y: -23 }, footL: { x: -24, y: 0 },
   },
   idle_2: {
-    head: { x: 5, y: -93 }, neck: { x: 3, y: -83 }, chest: { x: 2, y: -68 }, hip: { x: 0, y: -44 },
-    shoulderR: { x: 13, y: -79 }, elbowR: { x: 28, y: -68 }, handR: { x: 38, y: -79 },
-    shoulderL: { x: -12, y: -79 }, elbowL: { x: -21, y: -65 }, handL: { x: -8, y: -55 },
-    hipR: { x: 10, y: -44 }, kneeR: { x: 26, y: -22 }, footR: { x: 26, y: 0 },
-    hipL: { x: -8, y: -44 }, kneeL: { x: -19, y: -21 }, footL: { x: -22, y: 0 },
+    head: { x: 3, y: -95 }, neck: { x: 1, y: -85 }, chest: { x: 0, y: -70 }, hip: { x: -3, y: -45 },
+    shoulderR: { x: 10, y: -80 }, elbowR: { x: 24, y: -67 }, handR: { x: 37, y: -72 },
+    shoulderL: { x: -11, y: -79 }, elbowL: { x: -17, y: -64 }, handL: { x: -2, y: -59 },
+    hipR: { x: 5, y: -45 }, kneeR: { x: 20, y: -22 }, footR: { x: 22, y: 0 },
+    hipL: { x: -9, y: -45 }, kneeL: { x: -17, y: -21 }, footL: { x: -24, y: 0 },
   },
   walk_1: {
     head: { x: 7, y: -96 }, neck: { x: 5, y: -86 }, chest: { x: 3, y: -70 }, hip: { x: 0, y: -47 },

@@ -445,21 +445,21 @@ export class FighterController {
       c.fillStyle = fillCol;
     }
 
-    // Back leg + arm
-    this.drawMuscleLimb(c, p.hipL, p.kneeL, 8.2 * bulk, 6.0 * bulk, 1.3);
-    this.drawMuscleLimb(c, p.kneeL, p.footL, 6.0 * bulk, 3.2, 1.25);
+    // Back leg + arm (natural asymmetric calf/thigh, no puppet notches)
+    this.drawMuscleLimb(c, p.hipL, p.kneeL, 7.6 * bulk, 5.4 * bulk, 1.12);
+    this.drawMuscleLimb(c, p.kneeL, p.footL, 5.2 * bulk, 3.0, 1.15);
     this.drawFoot(c, p.footL);
-    this.drawMuscleLimb(c, p.shoulderL, p.elbowL, 5.0 * bulk, 3.8 * bulk, 1.25);
-    this.drawMuscleLimb(c, p.elbowL, p.handL, 4.0 * bulk, 2.8, 1.2);
+    this.drawMuscleLimb(c, p.shoulderL, p.elbowL, 4.6 * bulk, 3.6 * bulk, 1.1);
+    this.drawMuscleLimb(c, p.elbowL, p.handL, 3.6 * bulk, 2.5, 1.08);
     c.beginPath();
-    c.arc(p.handL.x, p.handL.y, 3.6, 0, Math.PI * 2);
+    c.arc(p.handL.x, p.handL.y, 3.4, 0, Math.PI * 2);
     c.fill();
 
     // Flowing sash
     if (drawExtras) {
       const wave = Math.sin(performance.now() * 0.005 + (this.facingRight ? 0 : 2)) * 5;
       c.beginPath();
-      c.moveTo(p.hip.x - 5, p.hip.y - 2);
+      c.moveTo(p.hip.x - 4, p.hip.y - 2);
       c.quadraticCurveTo(p.hip.x - 18, p.hip.y + 8 + wave, p.hip.x - 24, p.hip.y + 20 + wave);
       c.lineTo(p.hip.x - 19, p.hip.y + 22 + wave);
       c.quadraticCurveTo(p.hip.x - 12, p.hip.y + 10 + wave, p.hip.x - 2, p.hip.y + 2);
@@ -467,30 +467,42 @@ export class FighterController {
       c.fill();
     }
 
-    // V-tapered torso
-    const waistW = 8.5 * bulk;
+    // Seamless torso + martial-arts tunic/hakama skirt (unifies torso -> hips -> upper thighs)
+    const waistW = 8.2 * bulk;
     c.beginPath();
-    c.moveTo(p.shoulderL.x * bulk, p.shoulderL.y);
+    c.moveTo(p.shoulderL.x * bulk, p.shoulderL.y + 1);
     c.quadraticCurveTo(p.neck.x - 5, p.neck.y - 2, p.neck.x + 1, p.neck.y - 3);
-    c.quadraticCurveTo(p.neck.x + 6, p.neck.y - 2, p.shoulderR.x * bulk, p.shoulderR.y);
-    c.quadraticCurveTo(p.chest.x + 13 * bulk, p.chest.y, p.hip.x + waistW, p.hip.y + 2);
-    c.lineTo(p.hipR.x + 3, p.hipR.y + 6);
-    c.lineTo(p.hipL.x - 3, p.hipL.y + 6);
-    c.lineTo(p.hip.x - waistW, p.hip.y + 2);
-    c.quadraticCurveTo(p.chest.x - 13 * bulk, p.chest.y, p.shoulderL.x * bulk, p.shoulderL.y);
+    c.quadraticCurveTo(p.neck.x + 6, p.neck.y - 2, p.shoulderR.x * bulk, p.shoulderR.y + 1);
+    c.quadraticCurveTo(p.chest.x + 11 * bulk, p.chest.y, p.hip.x + waistW, p.hip.y);
+    c.lineTo(p.hipR.x + 7 * bulk, p.hipR.y + 13);
+    c.quadraticCurveTo(p.hip.x, p.hip.y + 15, p.hipL.x - 7 * bulk, p.hipL.y + 13);
+    c.lineTo(p.hip.x - waistW, p.hip.y);
+    c.quadraticCurveTo(p.chest.x - 11 * bulk, p.chest.y, p.shoulderL.x * bulk, p.shoulderL.y + 1);
     c.closePath();
     c.fill();
-    this.drawMuscleLimb(c, p.neck, p.head, 4.8, 4.2, 1.0);
+    this.drawMuscleLimb(c, p.neck, p.head, 4.4, 3.8, 1.0);
 
     // Front leg + arm
-    this.drawMuscleLimb(c, p.hipR, p.kneeR, 8.5 * bulk, 6.2 * bulk, 1.3);
-    this.drawMuscleLimb(c, p.kneeR, p.footR, 6.2 * bulk, 3.2, 1.25);
+    this.drawMuscleLimb(c, p.hipR, p.kneeR, 7.8 * bulk, 5.5 * bulk, 1.12);
+    this.drawMuscleLimb(c, p.kneeR, p.footR, 5.4 * bulk, 3.0, 1.15);
     this.drawFoot(c, p.footR);
-    this.drawMuscleLimb(c, p.shoulderR, p.elbowR, 5.2 * bulk, 4.0 * bulk, 1.25);
-    this.drawMuscleLimb(c, p.elbowR, p.handR, 4.2 * bulk, 2.8, 1.2);
+    this.drawMuscleLimb(c, p.shoulderR, p.elbowR, 4.8 * bulk, 3.7 * bulk, 1.1);
+    this.drawMuscleLimb(c, p.elbowR, p.handR, 3.8 * bulk, 2.5, 1.08);
     c.beginPath();
-    c.arc(p.handR.x, p.handR.y, 3.8, 0, Math.PI * 2);
+    c.arc(p.handR.x, p.handR.y, 3.6, 0, Math.PI * 2);
     c.fill();
+
+    // Subtle 2.5D rim highlight on leading edge so silhouette has armor volume
+    if (drawExtras) {
+      c.save();
+      c.strokeStyle = 'rgba(210, 225, 255, 0.14)';
+      c.lineWidth = 1.2;
+      c.beginPath();
+      c.moveTo(p.shoulderR.x * bulk, p.shoulderR.y + 2);
+      c.quadraticCurveTo(p.chest.x + 10 * bulk, p.chest.y, p.hip.x + waistW, p.hip.y);
+      c.stroke();
+      c.restore();
+    }
 
     // Head + jawline
     c.beginPath();
