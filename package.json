@@ -1,0 +1,22 @@
+{
+  "name": "shadow-fight-custom-room",
+  "version": "1.0.0",
+  "description": "Shadow Fight style game with 2-16 player full-classification custom room tournament",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "server": "node server/index.js",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "phaser": "^4.2.1",
+    "ws": "^8.17.0"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^8.4.0"
+  }
+}

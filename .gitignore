@@ -1,0 +1,7 @@
+node_modules/
+dist/
+extracted/
+public/res/
+init_check.py
+.env
+.DS_Store

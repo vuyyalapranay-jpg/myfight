@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Eclipse Blades — Martial Arts Fighting Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#070810;color:#eef0f4;font-family:'Rajdhani',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:10px}
+    .hdr{width:100%;max-width:1080px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:#10131e;border:1px solid #2b3248;padding:8px 16px;border-radius:8px;margin-bottom:10px}
+    .brand{font-family:'Cinzel',serif;font-size:1.15rem;color:#ffd740;letter-spacing:1.5px;cursor:pointer}
+    .econ{display:flex;gap:14px;font-weight:700;font-size:.95rem;align-items:center}
+    .econ span{background:#181d2c;padding:4px 10px;border-radius:4px;border:1px solid #2e364f}
+    .nav{display:flex;flex-wrap:wrap;gap:6px}
+    button,select,input{font-family:'Rajdhani',sans-serif;font-weight:700;padding:6px 12px;border-radius:4px;border:1px solid #3c4662;background:#181d2c;color:#fff;cursor:pointer}
+    button:hover{border-color:#ffd740}
+    .btn-gold{background:linear-gradient(180deg,#f0ca63,#b88720);color:#1a1004;border-color:#ffd740;font-family:'Cinzel',serif}
+    .btn-red{background:linear-gradient(180deg,#b82222,#730e0e);color:#fff;border-color:#ef5350}
+    .panel{width:100%;max-width:1080px;background:#0e111b;border:1px solid #2b3248;border-radius:8px;padding:18px;display:none}
+    .panel.active{display:block}
+    .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:12px}
+    .card{background:#151a28;border:1px solid #2c354f;border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:6px}
+    .card.sel{border-color:#ffd740;box-shadow:0 0 12px rgba(255,215,64,.35)}
+    .card h3{font-family:'Cinzel',serif;color:#ffd740;font-size:1rem}
+    .card p{font-size:.86rem;color:#9ea8bf}
+    .arena-wrap{position:relative;width:100%;max-width:960px;aspect-ratio:16/9;border:2px solid #2b3248;border-radius:8px;overflow:hidden;background:#000;margin:0 auto;box-shadow:0 10px 40px rgba(0,0,0,.9)}
+    #gameContainer{width:100%;height:100%}
+    .sf2-hud{position:absolute;top:12px;left:18px;right:18px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none;z-index:5}
+    .side{flex:1;max-width:360px}
+    .right{text-align:right}
+    .name{font-family:'Cinzel',serif;font-size:1rem;color:#fff6d6;text-shadow:0 2px 4px #000;margin-bottom:4px;text-transform:uppercase}
+    .hp-wrap{height:15px;background:rgba(15,10,8,.85);border:2px solid #181412;overflow:hidden;transform:skewX(-22deg)}
+    .right .hp-wrap{transform:skewX(22deg);direction:rtl}
+    .hp-fill{height:100%;width:100%;background:linear-gradient(180deg,#ffae34,#e64a19 55%,#b71c1c);transition:width .1s}
+    .en-wrap{height:6px;margin-top:4px;background:rgba(10,14,18,.85);width:85%;overflow:hidden;transform:skewX(-22deg)}
+    .right .en-wrap{transform:skewX(22deg);margin-left:auto;direction:rtl}
+    .en-fill{height:100%;width:0%;background:#4dd0e1}
+    .timer{font-family:'Cinzel',serif;font-size:2.3rem;font-weight:900;color:#ffe29a;text-shadow:0 2px 6px #000}
+    .banner{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%) scale(0);font-family:'Cinzel',serif;font-size:3rem;font-weight:900;color:#ffd740;text-shadow:0 0 20px #000;pointer-events:none;transition:transform .25s;z-index:6}
+    .banner.show{transform:translate(-50%,-50%) scale(1)}
+    .touch{position:absolute;bottom:12px;left:16px;right:16px;display:flex;justify-content:space-between;pointer-events:none;z-index:5}
+    .pad{display:flex;gap:6px;pointer-events:auto}
+    .pad button{width:40px;height:40px;border-radius:50%;background:rgba(20,24,34,.55);border:2px solid rgba(255,255,255,.3);font-size:.95rem}
+    .hint{margin-top:8px;color:#9aa4ba;font-size:.86rem;text-align:center}
+    .roster-16{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+    .slot{background:#141926;border:1px dashed #2e3750;padding:8px;border-radius:4px;text-align:center;font-size:.85rem}
+    .slot.occ{border:1px solid #ffd740;background:#1d2336}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;z-index:50}
+    .modal.show{display:flex}
+    .modal-box{background:#121624;border:2px solid #ffd740;border-radius:8px;padding:24px;max-width:420px;width:92%;text-align:center}
+    .modal-box h2{font-family:'Cinzel',serif;color:#ffd740;margin-bottom:10px}
+  </style>
+</head>
+<body>
+  <header class="hdr">
+    <div class="brand" id="btnHome">⚔ ECLIPSE BLADES</div>
+    <div class="econ">
+      <span id="hudLevel">LV 1</span>
+      <span id="hudCoins">🪙 500</span>
+      <span id="hudGems">💎 15</span>
+    </div>
+    <nav class="nav">
+      <button data-tab="menu">Menu</button>
+      <button data-tab="roster">14 Fighters</button>
+      <button data-tab="equip">Equipment</button>
+      <button data-tab="tournament">2–16 Room</button>
+      <button data-tab="arena">Arena</button>
+      <button id="btnMute">🔊</button>
+    </nav>
+  </header>
+
+  <!-- MAIN MENU / MODES -->
+  <section id="tab-menu" class="panel active">
+    <h2 style="font-family:'Cinzel',serif;color:#ffd740;margin-bottom:8px">CHOOSE YOUR PATH</h2>
+    <div class="grid-cards">
+      <div class="card"><h3>📜 Story Campaign</h3><p id="storyProgressDesc">Chapter 1</p><button class="btn-gold" id="btnPlayStory">Fight Next Chapter</button></div>
+      <div class="card"><h3>🏆 2–16 Custom Room</h3><p>Full 1st→16th rank classification bracket.</p><button class="btn-gold" data-tab-jump="tournament">Open Custom Room</button></div>
+      <div class="card"><h3>🔥 Survival</h3><p id="survivalBestDesc">Best Wave: 0</p><button class="btn-gold" id="btnPlaySurvival">Start Survival</button></div>
+      <div class="card"><h3>⚡ Challenges</h3><p>Special modifiers &amp; bonus gems.</p><div id="challengeBtns" style="display:flex;flex-direction:column;gap:4px"></div></div>
+      <div class="card"><h3>⚔ Quick Duel</h3><p>1v1 against any warrior.</p><select id="selDuelOpp"></select><button class="btn-gold" id="btnPlayDuel">Start Duel</button></div>
+      <div class="card"><h3>🎯 Training Dojo</h3><p>Practice combos with live Hitboxes (F9).</p><button id="btnPlayTraining">Enter Training</button></div>
+    </div>
+  </section>
+
+  <!-- 14 ORIGINAL FIGHTERS -->
+  <section id="tab-roster" class="panel">
+    <h2 style="font-family:'Cinzel',serif;color:#ffd740">14 ORIGINAL WARRIORS</h2>
+    <div id="rosterCards" class="grid-cards"></div>
+  </section>
+
+  <!-- EQUIPMENT & UPGRADES -->
+  <section id="tab-equip" class="panel">
+    <h2 style="font-family:'Cinzel',serif;color:#ffd740">EQUIPMENT &amp; ARMORY</h2>
+    <div style="margin:10px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <label>Equipped Weapon:</label>
+      <select id="selEquipWeapon"></select>
+      <span id="equipStatsLabel" style="color:#80deea"></span>
+    </div>
+    <div id="equipCards" class="grid-cards"></div>
+  </section>
+
+  <!-- 2-16 PLAYER CUSTOM ROOM TOURNAMENT -->
+  <section id="tab-tournament" class="panel">
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between">
+      <h2 style="font-family:'Cinzel',serif;color:#ffd740">CUSTOM ROOM TOURNAMENT (2–16)</h2>
+      <span id="wsRoomStatus" style="color:#ffd740">Not in room</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
+      <button class="btn-gold" id="btnCreateRoom">Create Room</button>
+      <input id="inpRoomCode" placeholder="ROOM_CODE" style="width:130px">
+      <button id="btnJoinRoom">Join Room</button>
+      <button id="btnAddBot" disabled>+ AI Bot</button>
+      <button class="btn-gold" id="btnStartTour" disabled>START TOURNAMENT</button>
+    </div>
+    <div id="tourRosterGrid" class="roster-16"></div>
+    <div id="tourStandings" style="margin-top:10px"></div>
+  </section>
+
+  <!-- ARENA (PHASER 3) -->
+  <section id="tab-arena" class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px">
+      <span id="arenaModeLabel" style="font-family:'Cinzel',serif;color:#ffd740">DUEL</span>
+      <div style="display:flex;gap:6px">
+        <select id="selStage"><option value="temple">Temple Courtyard</option><option value="titan_hall">Overlord Chamber</option></select>
+        <button id="btnDebug">Hitboxes (F9)</button>
+        <button class="btn-red" id="btnExitArena">Exit</button>
+      </div>
+    </div>
+    <div class="arena-wrap">
+      <div id="gameContainer"></div>
+      <div class="sf2-hud">
+        <div class="side">
+          <div class="name" id="f1Name">KUROGANE</div>
+          <div class="hp-wrap"><div class="hp-fill" id="f1Hp"></div></div>
+          <div class="en-wrap"><div class="en-fill" id="f1Energy"></div></div>
+        </div>
+        <div class="timer" id="combatTimer">99</div>
+        <div class="side right">
+          <div class="name" id="f2Name">KAELOR</div>
+          <div class="hp-wrap"><div class="hp-fill" id="f2Hp"></div></div>
+          <div class="en-wrap"><div class="en-fill" id="f2Energy"></div></div>
+        </div>
+      </div>
+      <div class="banner" id="fightBanner">FIGHT!</div>
+      <div class="touch" id="touchControls">
+        <div class="pad">
+          <button data-act="left">◀</button><button data-act="up">▲</button><button data-act="right">▶</button><button data-act="down">▼</button>
+        </div>
+        <div class="pad">
+          <button data-act="punch">👊</button><button data-act="weapon">⚔</button><button data-act="kick">🦵</button>
+          <button data-act="block">🛡</button><button data-act="dodge">🌀</button><button data-act="special">⚡</button>
+        </div>
+      </div>
+    </div>
+    <div class="hint">
+      <b>Move:</b> A/D &nbsp;|&nbsp; <b>Jump:</b> W &nbsp;|&nbsp; <b>Crouch:</b> S &nbsp;|&nbsp;
+      <b>Punch:</b> U &nbsp;|&nbsp; <b>Weapon:</b> J &nbsp;|&nbsp; <b>Kick:</b> K &nbsp;|&nbsp;
+      <b>Block/Parry:</b> B &nbsp;|&nbsp; <b>Dodge:</b> Space &nbsp;|&nbsp; <b>Special:</b> L &nbsp;|&nbsp; <b>Debug:</b> F9
+    </div>
+  </section>
+
+  <!-- RESULT MODAL -->
+  <div id="resultModal" class="modal">
+    <div class="modal-box">
+      <h2 id="resTitle">VICTORY</h2>
+      <p id="resBody" style="margin-bottom:14px;color:#cfd6e6"></p>
+      <button class="btn-gold" id="btnResContinue">Continue</button>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
