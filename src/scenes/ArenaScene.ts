@@ -72,6 +72,10 @@ export class ArenaScene extends Phaser.Scene {
     super({ key: 'ArenaScene' });
   }
 
+  public setMuted(muted: boolean): void {
+    this.audio.muted = muted;
+  }
+
   public setCallbacks(cb: ArenaCallbacks): void {
     this.callbacks = cb;
   }

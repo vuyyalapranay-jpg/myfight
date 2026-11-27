@@ -135,6 +135,7 @@ function launchBattle(
   if (modeLbl) modeLbl.textContent = opts?.label || mode.toUpperCase();
 
   showTab('arena');
+  (document.activeElement as HTMLElement | null)?.blur?.();
 
   sc.setCallbacks({
     onHudUpdate: (hp1, en1, hp2, en2, timer) => {
@@ -216,6 +217,24 @@ function connectTournamentWs(): void {
       if (el('f2Name')) el('f2Name')!.textContent = f2Cfg.name;
       if (el('arenaModeLabel')) el('arenaModeLabel')!.textContent = `TOURNAMENT [${m.targetRank}]`;
       showTab('arena');
+  (document.activeElement as HTMLElement | null)?.blur?.();
+      (document.activeElement as HTMLElement | null)?.blur?.();
+
+      sc.setCallbacks({
+        onHudUpdate: (hp1, en1, hp2, en2, timer) => {
+          if (el('f1Hp')) el('f1Hp')!.style.width = `${hp1}%`;
+          if (el('f2Hp')) el('f2Hp')!.style.width = `${hp2}%`;
+          if (el('f1Energy')) el('f1Energy')!.style.width = `${en1}%`;
+          if (el('f2Energy')) el('f2Energy')!.style.width = `${en2}%`;
+          if (el('combatTimer')) el('combatTimer')!.textContent = String(timer);
+        },
+        onMatchEnd: (winnerId) => {
+          if (ws && wsRoom) {
+            const won = winnerId === f1Cfg.id;
+            ws.send(JSON.stringify({ type: 'MATCH_ROUND_OVER', roomCode: wsRoom.code, winnerId, score: [won ? 1 : 0, won ? 0 : 1] }));
+          }
+        },
+      });
       sc.startMatch(f1Cfg, f2Cfg, 'temple');
     } else if (msg.type === 'MATCH_CONCLUDED' || msg.type === 'TOURNAMENT_COMPLETED') {
       wsRoom = msg.room;
@@ -254,6 +273,34 @@ window.addEventListener('DOMContentLoaded', () => {
   renderRoster();
   renderEquip();
   connectTournamentWs();
+
+  document.getElementById('btnHome')?.addEventListener('click', () => showTab('menu'));
+
+  const btnMute = document.getElementById('btnMute');
+  const syncMuteBtn = () => {
+    if (btnMute) btnMute.textContent = save.settings.muted ? '🔇' : '🔊';
+    getScene()?.setMuted(save.settings.muted);
+  };
+  syncMuteBtn();
+  btnMute?.addEventListener('click', () => {
+    save.settings.muted = !save.settings.muted;
+    writeSave(save);
+    syncMuteBtn();
+  });
+
+  document.getElementById('selStage')?.addEventListener('change', (e) => {
+    const sc = getScene();
+    if (sc) sc.stageKey = ((e.target as HTMLSelectElement).value as 'temple' | 'titan_hall') || 'temple';
+  });
+
+  // Prevent Space/Arrow keys from scrolling or clicking focused buttons during Arena combat
+  window.addEventListener('keydown', (e) => {
+    if (document.getElementById('tab-arena')?.classList.contains('active')) {
+      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'ArrowDown') {
+        e.preventDefault();
+      }
+    }
+  });
 
   document.querySelectorAll<HTMLButtonElement>('[data-tab], [data-tab-jump]').forEach((b) => {
     b.addEventListener('click', () => {
@@ -377,11 +424,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll<HTMLButtonElement>('#touchControls button').forEach((btn) => {
     const act = btn.dataset.act;
-    btn.addEventListener('pointerdown', () => { if (act) getScene()?.setTouchInput({ [act]: true }); });
-    btn.addEventListener('pointerup', () => {
+    const clearHold = () => {
       if (act && (act === 'left' || act === 'right' || act === 'block' || act === 'down' || act === 'up')) {
         getScene()?.setTouchInput({ [act]: false });
       }
-    });
+    };
+    btn.addEventListener('pointerdown', (e) => { e.preventDefault(); if (act) getScene()?.setTouchInput({ [act]: true }); });
+    btn.addEventListener('pointerup', clearHold);
+    btn.addEventListener('pointercancel', clearHold);
+    btn.addEventListener('pointerleave', clearHold);
   });
 });
