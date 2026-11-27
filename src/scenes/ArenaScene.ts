@@ -53,6 +53,7 @@ export class ArenaScene extends Phaser.Scene {
 
   private stageImgs: Record<string, HTMLImageElement> = {};
   private particles: Particle[] = [];
+  private slashFlashes: { x: number; y: number; ang: number; life: number }[] = [];
   private callouts: Callout[] = [];
   private sakura: { x: number; y: number; vx: number; vy: number; s: number; r: number }[] = [];
 
@@ -269,6 +270,10 @@ export class ArenaScene extends Phaser.Scene {
       p.life -= dt;
       if (p.life <= 0) this.particles.splice(i, 1);
     }
+    for (let i = this.slashFlashes.length - 1; i >= 0; i--) {
+      this.slashFlashes[i].life -= dt;
+      if (this.slashFlashes[i].life <= 0) this.slashFlashes.splice(i, 1);
+    }
     for (let i = this.callouts.length - 1; i >= 0; i--) {
       this.callouts[i].y -= 42 * dt;
       this.callouts[i].life -= dt;
@@ -332,7 +337,13 @@ export class ArenaScene extends Phaser.Scene {
       }
       if (hb.isMagic) this.callouts.push({ x: def.x, y: def.y - 250, text: 'SHADOW STRIKE!', color: '#4dd0e1', life: 0.9 });
       else if (res.zone === 'head') this.callouts.push({ x: def.x, y: def.y - 250, text: 'HEAD HIT!', color: '#ffab40', life: 0.85 });
-      else if (atk.hitStreak >= 3) this.callouts.push({ x: def.x, y: def.y - 250, text: `${atk.hitStreak} HIT COMBO!`, color: '#ffd740', life: 0.85 });
+      else if (atk.hitStreak >= 3) this.callouts.push({ x: def.x, y: def.y - 250, text: `COMBO ${atk.hitStreak}`, color: '#ffd740', life: 0.9 });
+      this.slashFlashes.push({
+        x: hb.x + hb.w * 0.5,
+        y: hb.y + hb.h * 0.5,
+        ang: (Math.random() - 0.5) * 1.4,
+        life: 0.14,
+      });
     }
 
     for (let i = 0; i < (res.isCritical ? 20 : 12); i++) {
@@ -404,6 +415,18 @@ export class ArenaScene extends Phaser.Scene {
       c.beginPath();
       c.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       c.fill();
+    }
+    c.globalAlpha = 1;
+
+    for (const sf of this.slashFlashes) {
+      c.save();
+      c.translate(sf.x, sf.y);
+      c.rotate(sf.ang);
+      c.globalAlpha = Math.min(1, sf.life * 8);
+      c.strokeStyle = '#ffffff';
+      c.lineWidth = 4;
+      c.beginPath(); c.moveTo(-52, 0); c.lineTo(52, 0); c.stroke();
+      c.restore();
     }
     c.globalAlpha = 1;
 

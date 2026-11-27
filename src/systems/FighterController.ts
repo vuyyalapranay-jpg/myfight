@@ -58,6 +58,7 @@ export class FighterController {
 
   public swingArc: SwingPoint[] = [];
   public afterimages: Afterimage[] = [];
+  public bodyAngle = 0;
   private wasAirborne = false;
 
   constructor(config: FighterConfig, startX: number, facingRight: boolean) {
@@ -275,10 +276,40 @@ export class FighterController {
     if (this.blendTime > 0) {
       this.blendTime = Math.max(0, this.blendTime - dt);
       const b = 1 - this.blendTime / this.blendDuration;
-      this.currentPose = lerpPose(this.prevPose, target, b);
+      this.currentPose = this.constrainSkeleton(lerpPose(this.prevPose, target, b));
     } else {
-      this.currentPose = target;
+      this.currentPose = this.constrainSkeleton(target);
     }
+
+    // Dynamic whole-body lean / knockdown rotation (learned from SF2 choreography)
+    let targetAngle = 0;
+    if (this.anim === 'knockdown' || this.anim === 'defeat') targetAngle = -1.25;
+    else if (this.anim === 'hit_head') targetAngle = -0.35;
+    else if (this.anim === 'hit_light') targetAngle = -0.2;
+    else if (this.anim === 'weapon_thrust' || this.anim === 'walk_fwd') targetAngle = 0.14;
+    else if (this.anim === 'roundhouse' || this.anim === 'uppercut') targetAngle = -0.16;
+    else if (this.anim === 'dodge_back') targetAngle = -0.55;
+    this.bodyAngle += (targetAngle - this.bodyAngle) * Math.min(1, dt * 14);
+  }
+
+  /** Enforces constant human bone lengths so swinging limbs trace true arcs instead of shrinking. */
+  private constrainSkeleton(p: SkeletonPose): SkeletonPose {
+    const fix = (root: { x: number; y: number }, child: { x: number; y: number }, len: number) => {
+      const dx = child.x - root.x;
+      const dy = child.y - root.y;
+      const d = Math.hypot(dx, dy) || 1;
+      return { x: root.x + (dx / d) * len, y: root.y + (dy / d) * len };
+    };
+    const out: SkeletonPose = { ...p };
+    out.elbowR = fix(out.shoulderR, out.elbowR, 18);
+    out.handR = fix(out.elbowR, out.handR, 17);
+    out.elbowL = fix(out.shoulderL, out.elbowL, 18);
+    out.handL = fix(out.elbowL, out.handL, 17);
+    out.kneeR = fix(out.hipR, out.kneeR, 24);
+    out.footR = fix(out.kneeR, out.footR, 24);
+    out.kneeL = fix(out.hipL, out.kneeL, 24);
+    out.footL = fix(out.kneeL, out.footL, 24);
+    return out;
   }
 
   private updateTrails(dt: number): void {
@@ -387,21 +418,22 @@ export class FighterController {
   }
 
   public drawSilhouette(c: CanvasRenderingContext2D): void {
-    // Draw swing arc
+    // Draw bright SF2 white-core + colored-edge swing arc
     if (this.swingArc.length > 1) {
       const [r, g, b] = this.config.weapon.trailColor;
       for (let i = 1; i < this.swingArc.length; i++) {
         const p0 = this.swingArc[i - 1];
         const p1 = this.swingArc[i];
         const frac = i / this.swingArc.length;
+        const alpha = Math.min(0.9, p1.life * 5.5 * frac);
         c.save();
-        c.strokeStyle = `rgba(${r},${g},${b},${Math.min(0.85, p1.life * 5 * frac)})`;
-        c.lineWidth = 2 + frac * 13;
         c.lineCap = 'round';
-        c.beginPath();
-        c.moveTo(p0.x, p0.y);
-        c.lineTo(p1.x, p1.y);
-        c.stroke();
+        c.strokeStyle = `rgba(${r},${g},${b},${alpha * 0.7})`;
+        c.lineWidth = 4 + frac * 14;
+        c.beginPath(); c.moveTo(p0.x, p0.y); c.lineTo(p1.x, p1.y); c.stroke();
+        c.strokeStyle = `rgba(255,255,255,${alpha})`;
+        c.lineWidth = 1.5 + frac * 5;
+        c.beginPath(); c.moveTo(p0.x, p0.y); c.lineTo(p1.x, p1.y); c.stroke();
         c.restore();
       }
     }
@@ -431,6 +463,11 @@ export class FighterController {
     c.save();
     c.translate(fx, fy);
     c.scale(facingRight ? sc : -sc, sc);
+    if (drawExtras && this.bodyAngle !== 0) {
+      c.translate(0, -38);
+      c.rotate(this.bodyAngle);
+      c.translate(0, 38);
+    }
     c.fillStyle = fillCol;
     c.strokeStyle = fillCol;
 
